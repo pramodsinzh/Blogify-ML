@@ -1,37 +1,29 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
-import { assets, footer_data } from '../assets/assets'
-
 const Footer = () => {
-    return (
-        <footer className="bg-primary/3  mt-10">
-            <div className="mx-auto max-w-6xl px-6 md:px-8 lg:px-10 xl:px-12">
-                <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 py-6 text-sm text-gray-600 border-b border-gray-200">
-                    {footer_data.map((section, index) => (
-                        <div key={index} className="flex flex-wrap items-center gap-x-6 gap-y-2">
-                            {/* <h3 className='font-semibold text-gray-900 text-base md:mb-0 mb-2'>{section.title}</h3> */}
-                            <ul className="flex flex-wrap items-center gap-x-6 gap-y-2">
-                                {section.links.map((link, i) => (
-                                    <li key={i}>
-                                        <Link
-                                            className="hover:text-gray-900 hover:underline transition-colors duration-150"
-                                            to={link.href}
-                                        >
-                                            {link.label}
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    ))}
-                </div>
+    const year = new Date().getFullYear();
 
-                <p className="py-4 text-center text-xs md:text-sm text-gray-500 border-t border-gray-100">
-                    Copyright 2026 © Blogify - All Right Reserved.
-                </p>
+    return (
+        <footer className="border-t border-primary/10 bg-gradient-to-b from-primary/[0.04] to-transparent">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
+                <div className="flex flex-col items-center justify-center">
+                    <span
+                        className="mb-1.5 h-px w-10 rounded-full bg-primary/40"
+                        aria-hidden="true"
+                    />
+                    <p className="text-center text-xs sm:text-sm text-gray-500 tracking-wide">
+                        <span className="font-medium text-gray-600">Blogify-ML</span>
+                        <span className="mx-2 text-gray-300" aria-hidden="true">
+                            ·
+                        </span>
+                        Copyright {year}
+                        <span className="mx-2 text-gray-300" aria-hidden="true">
+                            ·
+                        </span>
+                        All rights reserved
+                    </p>
+                </div>
             </div>
         </footer>
-    )
-}
+    );
+};
 
-export default Footer
+export default Footer;

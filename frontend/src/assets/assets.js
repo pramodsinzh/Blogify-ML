@@ -249,13 +249,24 @@ export const dashboard_data = {
     "recentBlogs": blog_data.slice(0, 5),
 }
 
+export const nav_links = [
+    { label: "Home", href: "/" },
+    { label: "Blogs", href: "/see-all-blogs" },
+    { label: "About", href: "/about" },
+    { label: "FAQs", href: "/faqs" },
+    { label: "Contact", href: "/contact" },
+];
+
 export const footer_data = [
     {
-        title: "Quick Links",
+        title: "Explore",
+        links: nav_links,
+    },
+    {
+        title: "For writers",
         links: [
-            { label: "About Us", href: "/about" },
-            { label: "FAQs", href: "/faqs" },
-            { label: "Contact Us", href: "/contact" }
-        ]
-    }
+            { label: "Write a blog", href: "/add-blog" },
+            { label: "My blogs", href: "/my-blogs" },
+        ],
+    },
 ];

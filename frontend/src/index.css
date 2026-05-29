@@ -5,6 +5,16 @@
     font-family: "Outfit", sans-serif;
 }
 
+html,
+body,
+#root {
+    min-height: 100%;
+}
+
+body {
+    margin: 0;
+}
+
 ::-webkit-scrollbar {
     display: none;
 }
