@@ -4,7 +4,7 @@ import Subscription from "../models/subscription.model.js";
 import BlogNotification from "../models/blogNotification.model.js";
 import emailService from "../services/mailService.js";
 
-export const inngest = new Inngest({ id: "blog-post" });
+export const inngest = new Inngest({ id: process.env.INNGEST_APP_ID || "blogify-ml" });
 
 const getNameFromClerkPayload = ({ first_name, last_name, email_addresses }) => {
     const fullName = `${first_name ?? ""} ${last_name ?? ""}`.trim();
