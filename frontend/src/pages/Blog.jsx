@@ -4,6 +4,7 @@ import { assets } from '../assets/assets'
 import Navbar from '../components/Navbar'
 import Moment from 'moment'
 import Footer from '../components/Footer'
+import RecommendedBlogs from '../components/RecommendedBlogs'
 import { Loader } from '../components/Loader'
 import { useAppContext } from '../context/AppContext'
 import toast from 'react-hot-toast'
@@ -113,6 +114,8 @@ const Blog = () => {
         <img src={data.image} className='rounded-3xl mb-5' alt="" />
         <div className='rich-text max-w-3xl mx-auto' dangerouslySetInnerHTML={{ __html: data.description }}></div>
       </div>
+
+      <RecommendedBlogs blogId={id} />
 
       {/* comment section */}
       <div className="mt-14 mb-10 max-w-3xl mx-auto">
