@@ -115,7 +115,7 @@ const Blog = () => {
         <div className='rich-text max-w-3xl mx-auto' dangerouslySetInnerHTML={{ __html: data.description }}></div>
       </div>
 
-      <RecommendedBlogs blogId={id} />
+      <RecommendedBlogs blogId={id} category={data.category} />
 
       {/* comment section */}
       <div className="mt-14 mb-10 max-w-3xl mx-auto">

@@ -14,21 +14,25 @@ const CardSkeleton = () => (
   </div>
 )
 
-const RecommendedBlogs = ({ blogId }) => {
-  const { axios } = useAppContext()
-  const [blogs, setBlogs] = useState(null)
+const RecommendedBlogs = ({ blogId, category }) => {
+  const { axios, blogs: allBlogs } = useAppContext()
+  const [recBlogs, setRecBlogs] = useState(null) // null = loading, [] = ML returned nothing
+  const [hasLoaded, setHasLoaded] = useState(false)
 
   useEffect(() => {
     let cancelled = false
 
     const fetchRecommendations = async () => {
-      setBlogs(null)
+      setHasLoaded(false)
+      setRecBlogs(null)
       try {
         const { data } = await axios.get(`/blog/${blogId}/recommendations?limit=4`)
         if (cancelled) return
-        setBlogs(data.success && Array.isArray(data.blogs) ? data.blogs : [])
+        setRecBlogs(data.success && Array.isArray(data.blogs) ? data.blogs : [])
       } catch {
-        if (!cancelled) setBlogs([])
+        if (!cancelled) setRecBlogs([])
+      } finally {
+        if (!cancelled) setHasLoaded(true)
       }
     }
 
@@ -36,23 +40,37 @@ const RecommendedBlogs = ({ blogId }) => {
     return () => { cancelled = true }
   }, [blogId])
 
-  if (blogs !== null && blogs.length === 0) return null
+  const fallbackBlogs = (() => {
+    if (!category) return []
+    if (!Array.isArray(allBlogs)) return []
+    return allBlogs
+      .filter((b) => b?._id && b._id !== blogId && b.category === category)
+      .slice(0, 4)
+  })()
+
+  const blogsToShow = recBlogs !== null && recBlogs.length > 0 ? recBlogs : fallbackBlogs
+
+  // If ML finished but we don't yet have `allBlogs` from AppContext, keep the skeleton visible
+  // instead of hiding the section abruptly.
+  const allBlogsReady = Array.isArray(allBlogs)
+  if (hasLoaded && blogsToShow.length === 0 && allBlogsReady) return null
 
   return (
     <section className="mt-16 mb-10 max-w-5xl mx-auto px-5">
       <h2 className="text-xl font-semibold text-gray-800 mb-6">You might also like</h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {blogs === null
+        {recBlogs === null
           ? Array.from({ length: 3 }).map((_, i) => <CardSkeleton key={i} />)
-          : blogs.map((blog) => (
+          : (blogsToShow.length ? blogsToShow : Array.from({ length: 3 }))
+              .map((blogOrUseless, i) => (
             <motion.div
-              key={blog._id}
+              key={blogOrUseless?._id || `skeleton-${i}`}
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <BlogCard blog={blog} />
+              {blogOrUseless ? <BlogCard blog={blogOrUseless} /> : <CardSkeleton />}
             </motion.div>
           ))}
       </div>
