@@ -10,15 +10,8 @@ const Footer = () => {
                         aria-hidden="true"
                     />
                     <p className="text-center text-xs sm:text-sm text-gray-500 tracking-wide">
-                        <span className="font-medium text-gray-600">Blogify-ML</span>
-                        <span className="mx-2 text-gray-300" aria-hidden="true">
-                            ·
-                        </span>
-                        Copyright {year}
-                        <span className="mx-2 text-gray-300" aria-hidden="true">
-                            ·
-                        </span>
-                        All rights reserved
+                        Copyright {year} &copy; <span className="font-medium text-gray-600">Blogify-ML</span>.
+                        All rights reserved.
                     </p>
                 </div>
             </div>
