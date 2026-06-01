@@ -5,6 +5,7 @@ import Comment from '../models/comment.model.js';
 import main from '../configs/gemini.config.js';
 import mongoose from "mongoose";
 import { inngest } from "../inngest/index.js";
+import { getRecommendedBlogs } from "../services/recommendationService.js";
 
 const queueBlogSubmissionApprovalEmail = async (blog) => {
     await inngest.send({
@@ -147,6 +148,48 @@ export const getBlogById = async (req, res) => {
         })
     }
 }
+
+export const getBlogRecommendations = async (req, res) => {
+    try {
+        const { blogId } = req.params;
+        const limit = req.query.limit;
+
+        if (!mongoose.Types.ObjectId.isValid(blogId)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid blog ID",
+            });
+        }
+
+        const blog = await Blog.findById(blogId);
+        if (!blog) {
+            return res.status(404).json({
+                success: false,
+                message: "Blog not found",
+            });
+        }
+
+        if (!blog.isPublished) {
+            return res.status(403).json({
+                success: false,
+                message: "This blog is not published yet",
+            });
+        }
+
+        const blogs = await getRecommendedBlogs(blogId, limit);
+
+        return res.json({
+            success: true,
+            blogs,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};
+
 export const deleteBlogById = async (req, res) => {
     try {
         const { id } = req.body;
