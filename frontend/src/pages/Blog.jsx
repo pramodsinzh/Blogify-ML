@@ -118,7 +118,7 @@ const Blog = () => {
       <RecommendedBlogs blogId={id} category={data.category} />
 
       {/* comment section */}
-      <div className="mt-14 mb-10 max-w-3xl mx-auto">
+      <div className="mt-14 mb-10 max-w-3xl mx-auto px-5 sm:px-0">
         <p className="font-semibold mb-4">Comments ({comments.length})</p>
         <div className="flex flex-col gap-4">
           {comments.map((item, index) => (
@@ -137,7 +137,7 @@ const Blog = () => {
       </div>
 
       {/* Add comment section */}
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-3xl mx-auto px-5 sm:px-0">
         <p className="font-semibold mb-4">Add your comment</p>
         <form onSubmit={addComment} className='flex flex-col items-start gap-4 max-w-lg'>
           <textarea onChange={(e) => setContent(e.target.value)} value={content} placeholder='Comment' required className='w-full p-2 border border-gray-300 rounded outline-none h-48'></textarea>
@@ -147,7 +147,7 @@ const Blog = () => {
       </div>
 
       {/* Share Buttons */}
-      <div className="my-24 max-w-3xl mx-auto">
+      <div className="my-24 max-w-3xl mx-auto px-5 sm:px-0">
         <p className="font-semibold my-4">Share this blog on social media</p>
         <div className="flex gap-2 flex-wrap">
           <button
