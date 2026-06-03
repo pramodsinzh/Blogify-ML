@@ -48,6 +48,6 @@ desktop.ini
 # Python ML service
 ml-service/.venv/
 ml-service/__pycache__/
-ml-service/models/*.pkl
+# Keep models/*.pkl in git so Render can load the trained classifier
 ml-service/models/training_metrics.json
 

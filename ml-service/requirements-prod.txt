@@ -1,0 +1,6 @@
+# Production deps for Render (no Jupyter / MongoDB — training is local only)
+fastapi>=0.115.6
+uvicorn[standard]>=0.34.0
+pydantic>=2.13.0
+scikit-learn>=1.7.2
+joblib>=1.4.2

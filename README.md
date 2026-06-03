@@ -102,7 +102,8 @@ Blogify/
    ```bash
    python main.py
    ```
-3. Ensure `ML_SERVICE_URL=http://localhost:8000` in `backend/.env`.
+3. Local: `ML_SERVICE_URL=http://localhost:8000` in `backend/.env`.
+4. Production: deploy `ml-service` on [Render](https://render.com) and set `ML_SERVICE_URL` on **Vercel backend**. See [ml-service/DEPLOY_RENDER.md](ml-service/DEPLOY_RENDER.md).
 
 Full details: [ml-service/README.md](ml-service/README.md).
 
