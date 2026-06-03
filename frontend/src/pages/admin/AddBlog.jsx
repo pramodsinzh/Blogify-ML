@@ -1,9 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { assets, blogCategories } from '../../assets/assets'
-import Quill from 'quill'
+import React, { useState } from 'react'
+import { assets } from '../../assets/assets'
+import { buildCategoryOptions } from '../../utils/blogCategoryOptions'
 import { useAppContext } from '../../context/AppContext'
 import toast from 'react-hot-toast'
 import { marked } from 'marked'
+import CategoryAiSuggestion from '../../components/CategoryAiSuggestion'
+import { useQuillEditor } from '../../hooks/useQuillEditor'
 
 const AddBlog = () => {
 
@@ -11,14 +13,20 @@ const AddBlog = () => {
   const [isAdding, setIsAdding] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  const editorRef = useRef(null)
-  const quillRef = useRef(null)
+  const { editorRef, quillRef, html: editorHtml, revision: editorRevision, syncFromEditor, clearEditor } = useQuillEditor()
 
   const [image, setImage] = useState(false);
   const [title, setTitle] = useState('');
   const [subTitle, setSubTitle] = useState('');
   const [category, setCategory] = useState('Startup');
   const [isPublished, setIsPublished] = useState(false);
+  const [aiSuggestedCategory, setAiSuggestedCategory] = useState(null);
+  const [aiTopCategories, setAiTopCategories] = useState([]);
+  const categoryOptions = buildCategoryOptions(
+    category,
+    aiSuggestedCategory,
+    aiTopCategories.map((p) => p.category)
+  );
 
   const generateContent = async () => {
     if(!title) return toast.error('Please enter a title')
@@ -39,6 +47,7 @@ const AddBlog = () => {
           // Set content using Quill's API for better formatting
           const delta = quillRef.current.clipboard.convert({ html: htmlContent })
           quillRef.current.setContents(delta, 'silent')
+          syncFromEditor()
           
           // Alternative: Direct HTML insertion if delta doesn't work well
           // quillRef.current.root.innerHTML = htmlContent
@@ -73,7 +82,7 @@ const AddBlog = () => {
         toast.success(data.message)
         setImage(false)
         setTitle('')
-        quillRef.current.root.innerHTML = ''
+        clearEditor()
         setCategory('Startup')
         setSubTitle('')
         setIsPublished(false)
@@ -91,13 +100,6 @@ const AddBlog = () => {
       setIsAdding(false)
     }
   }
-
-  useEffect(() => {
-    //Initiate quill only once
-    if (!quillRef.current && editorRef.current) {
-      quillRef.current = new Quill(editorRef.current, { theme: 'snow' })
-    }
-  }, [])
 
   return (
     <form onSubmit={onSubmitHandle} className='flex-1 bg-blue-50/50 text-gray-600 h-full overflow-scroll'>
@@ -131,12 +133,29 @@ const AddBlog = () => {
         </div>
 
         <p className='mt-4'>Blog Category</p>
-        <select onChange={e => setCategory(e.target.value)} name="category" className='mt-2 px-3 py-2 border text-gray-500 border-gray-300 outline-none rounded' id="">
-          <option value="">Select catgory</option>
-          {blogCategories.map((item, index) => {
-            return <option key={index} value={item}>{item}</option>
-          })}
+        <select
+          onChange={e => setCategory(e.target.value)}
+          value={category}
+          name="category"
+          className='mt-2 px-3 py-2 border text-gray-500 border-gray-300 outline-none rounded'
+        >
+          {categoryOptions.map((item) => (
+            <option key={item} value={item}>{item}</option>
+          ))}
         </select>
+        <CategoryAiSuggestion
+          title={title}
+          subTitle={subTitle}
+          content={editorHtml}
+          contentRevision={editorRevision}
+          category={category}
+          onSuggestion={setAiSuggestedCategory}
+          onTopPredictions={setAiTopCategories}
+          onCategoryChange={(cat) => {
+            setCategory(cat)
+            setAiSuggestedCategory(cat)
+          }}
+        />
 
         <div className="flex gap-2 mt-4">
           <p>Publish Now</p>

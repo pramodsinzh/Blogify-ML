@@ -9,6 +9,8 @@ A full-stack blogging platform: public reading, signed-in authors, an admin area
 - **Admin dashboard**: JWT-protected routes under `/admin` for managing posts, comments, and newsletter subscribers (separate from Clerk user flows).
 - **Rich editing**: Quill editor, Markdown rendering, image uploads (ImageKit when configured).
 - **AI-assisted writing**: Optional Google Gemini integration for content generation from the admin/blog flows.
+- **ML recommendations**: Content-based “You might also like” suggestions (TF-IDF + cosine similarity).
+- **Trained category classifier**: Logistic Regression model trained on your MongoDB blogs; suggests category while writing (see `ml-service/README.md`).
 - **Email & automation**: Nodemailer for transactional mail; **Inngest** for workflows (for example Clerk user sync and blog notifications) when configured.
 
 ## Tech stack
@@ -81,9 +83,28 @@ Production-style commands: `npm run start:frontend` and `npm run start:backend`.
 Blogify/
   frontend/     # Vite + React app (pages, components, admin UI)
   backend/      # Express API, models, routes, Inngest functions
+  ml-service/   # Python FastAPI: recommendations + trained category model
   package.json  # Root scripts and concurrently
   README.md
 ```
+
+### ML service (category prediction + recommendations)
+
+1. Install Python deps and train on your blog dataset:
+   ```bash
+   cd ml-service
+   python -m venv .venv
+   .\.venv\Scripts\activate
+   pip install -r requirements.txt
+   python train_model.py
+   ```
+2. Run the ML API (port 8000):
+   ```bash
+   python main.py
+   ```
+3. Ensure `ML_SERVICE_URL=http://localhost:8000` in `backend/.env`.
+
+Full details: [ml-service/README.md](ml-service/README.md).
 
 ## Contributing
 

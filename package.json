@@ -9,6 +9,8 @@
     "dev:frontend": "npm run dev --prefix frontend",
     "server:backend": "npm run server --prefix backend",
     "project": "concurrently \"npm run dev:frontend\" \"npm run server:backend\"",
+    "ml:train": "cd ml-service && .venv\\Scripts\\python train_model.py",
+    "ml:serve": "cd ml-service && .venv\\Scripts\\uvicorn main:app --host 0.0.0.0 --port 8000 --reload",
     "setup": "npm install && npm install --prefix frontend && npm install --prefix backend"
   },
   "repository": {

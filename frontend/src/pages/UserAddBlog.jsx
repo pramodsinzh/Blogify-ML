@@ -1,22 +1,29 @@
-import React, { useEffect, useRef, useState } from 'react'
-import Quill from 'quill'
+import React, { useState } from 'react'
 import toast from 'react-hot-toast'
-import { assets, blogCategories } from '../assets/assets'
+import { assets } from '../assets/assets'
+import { buildCategoryOptions } from '../utils/blogCategoryOptions'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { useAppContext } from '../context/AppContext'
+import CategoryAiSuggestion from '../components/CategoryAiSuggestion'
+import { useQuillEditor } from '../hooks/useQuillEditor'
 
 const UserAddBlog = () => {
   const { axios, getToken } = useAppContext()
-
-  const editorRef = useRef(null)
-  const quillRef = useRef(null)
+  const { editorRef, quillRef, html: editorHtml, revision: editorRevision, clearEditor } = useQuillEditor()
 
   const [isAdding, setIsAdding] = useState(false)
   const [image, setImage] = useState(false)
   const [title, setTitle] = useState('')
   const [subTitle, setSubTitle] = useState('')
   const [category, setCategory] = useState('Startup')
+  const [aiSuggestedCategory, setAiSuggestedCategory] = useState(null)
+  const [aiTopCategories, setAiTopCategories] = useState([])
+  const categoryOptions = buildCategoryOptions(
+    category,
+    aiSuggestedCategory,
+    aiTopCategories.map((p) => p.category)
+  )
 
   const onSubmitHandle = async (e) => {
     e.preventDefault()
@@ -47,19 +54,13 @@ const UserAddBlog = () => {
       setTitle('')
       setSubTitle('')
       setCategory('Startup')
-      quillRef.current.root.innerHTML = ''
+      clearEditor()
     } catch (error) {
       toast.error(error.message)
     } finally {
       setIsAdding(false)
     }
   }
-
-  useEffect(() => {
-    if (!quillRef.current && editorRef.current) {
-      quillRef.current = new Quill(editorRef.current, { theme: 'snow' })
-    }
-  }, [])
 
   return (
     <>
@@ -87,11 +88,29 @@ const UserAddBlog = () => {
           </div>
 
           <p className='mt-4'>Blog Category</p>
-          <select onChange={(e) => setCategory(e.target.value)} value={category} name="category" className='mt-2 px-3 py-2 border text-gray-500 border-gray-300 outline-none rounded'>
-            {blogCategories.map((item, index) => (
-              <option key={index} value={item}>{item}</option>
+          <select
+            onChange={(e) => setCategory(e.target.value)}
+            value={category}
+            name="category"
+            className='mt-2 px-3 py-2 border text-gray-500 border-gray-300 outline-none rounded'
+          >
+            {categoryOptions.map((item) => (
+              <option key={item} value={item}>{item}</option>
             ))}
           </select>
+          <CategoryAiSuggestion
+            title={title}
+            subTitle={subTitle}
+            content={editorHtml}
+            contentRevision={editorRevision}
+            category={category}
+            onSuggestion={setAiSuggestedCategory}
+            onTopPredictions={setAiTopCategories}
+            onCategoryChange={(cat) => {
+              setCategory(cat)
+              setAiSuggestedCategory(cat)
+            }}
+          />
 
           <button disabled={isAdding} type="submit" className='mt-8 w-44 h-10 bg-primary text-white rounded cursor-pointer text-sm disabled:opacity-70'>
             {isAdding ? 'Submitting...' : 'Submit for Review'}

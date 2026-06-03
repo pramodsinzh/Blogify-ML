@@ -6,6 +6,7 @@ import main from '../configs/gemini.config.js';
 import mongoose from "mongoose";
 import { inngest } from "../inngest/index.js";
 import { getRecommendedBlogs } from "../services/recommendationService.js";
+import { predictBlogCategory } from "../services/categoryPredictionService.js";
 
 const queueBlogSubmissionApprovalEmail = async (blog) => {
     await inngest.send({
@@ -430,3 +431,45 @@ export const generateContent = async (req, res) => {
         res.json({ success: false, message: error.message })
     }
 }
+
+export const predictCategory = async (req, res) => {
+    try {
+        const { title, content } = req.body;
+
+        if (!String(title || "").trim() && !String(content || "").trim()) {
+            return res.status(400).json({
+                success: false,
+                message: "Provide a title or content to predict category.",
+            });
+        }
+
+        const result = await predictBlogCategory({
+            title: title || "",
+            content: content || "",
+        });
+
+        return res.json({
+            success: true,
+            predictedCategory: result.predictedCategory,
+            confidence: result.confidence,
+            topPredictions: result.topPredictions,
+        });
+    } catch (error) {
+        if (error.code === "MODEL_NOT_TRAINED") {
+            return res.status(503).json({
+                success: false,
+                message: error.message,
+            });
+        }
+        if (error.code === "BAD_REQUEST") {
+            return res.status(400).json({
+                success: false,
+                message: error.message,
+            });
+        }
+        return res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+};

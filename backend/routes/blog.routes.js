@@ -1,5 +1,5 @@
 import express from 'express'
-import { addBlog, addComment, deleteBlogById, generateContent, getAllBlogs, getBlogById, getBlogComments, getBlogRecommendations, getMyBlogs, reviewBlogById, togglePublish } from '../controllers/blog.controller.js';
+import { addBlog, addComment, deleteBlogById, generateContent, getAllBlogs, getBlogById, getBlogComments, getBlogRecommendations, getMyBlogs, predictCategory, reviewBlogById, togglePublish } from '../controllers/blog.controller.js';
 import upload from '../middleware/multer.middleware.js';
 import auth from '../middleware/auth.middleware.js';
 import { requireClerkAuth } from '../middleware/clerkAuth.middleware.js';
@@ -19,5 +19,6 @@ blogRouter.get('/comments', getBlogComments)
 blogRouter.get("/:blogId/recommendations", getBlogRecommendations)
 blogRouter.get("/:blogId", getBlogById)
 blogRouter.post('/generate', auth, generateContent)
+blogRouter.post('/predict-category', predictCategory)
 
 export default blogRouter;
