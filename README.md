@@ -1,111 +1,192 @@
-# Blogify
+# Blogify-ML
 
-A full-stack blogging platform: public reading, signed-in authors, an admin area, comments, newsletter signup, and contact. The app uses **React** with **Vite** on the front end and **Express** with **MongoDB** on the back end, with **Clerk** for authentication.
+A full-stack blogging platform with **machine learning** built in: public reading, Clerk-authenticated authors, an admin dashboard, comments, newsletter signup, and contact. The stack is **React** + **Vite** on the frontend, **Express** + **MongoDB** on the backend, and a **Python FastAPI** service for recommendations and trained category prediction.
 
 ## Features
 
-- **Public site**: Home, blog listing and detail pages, About, FAQs, and a contact form.
-- **Authors (Clerk)**: Sign in to create posts, manage “my blogs,” and comment on posts.
-- **Admin dashboard**: JWT-protected routes under `/admin` for managing posts, comments, and newsletter subscribers (separate from Clerk user flows).
-- **Rich editing**: Quill editor, Markdown rendering, image uploads (ImageKit when configured).
-- **AI-assisted writing**: Optional Google Gemini integration for content generation from the admin/blog flows.
-- **ML recommendations**: Content-based “You might also like” suggestions (TF-IDF + cosine similarity).
-- **Trained category classifier**: Logistic Regression model trained on your MongoDB blogs; suggests category while writing (see `ml-service/README.md`).
-- **Email & automation**: Nodemailer for transactional mail; **Inngest** for workflows (for example Clerk user sync and blog notifications) when configured.
+- **Public site** — Home, blog listing and detail pages, About, FAQs, and a contact form.
+- **Authors (Clerk)** — Sign in to submit posts (`/add-blog`), manage “My Blogs,” and comment on posts.
+- **Admin dashboard** — `/admin` for managing posts, comments, and newsletter subscribers. Access requires a signed-in Clerk user whose email matches `ADMIN_EMAIL` in the backend env (legacy JWT admin login is also supported).
+- **Rich editing** — Quill editor, Markdown rendering, image uploads via ImageKit.
+- **AI-assisted writing** — Optional Google Gemini integration for content generation.
+- **ML recommendations** — Content-based “You might also like” suggestions (TF-IDF + cosine similarity).
+- **Trained category classifier** — Logistic Regression model trained on your MongoDB blogs; suggests category while writing (see [ml-service/README.md](ml-service/README.md)).
+- **Email & automation** — Nodemailer for transactional mail; **Inngest** for workflows (Clerk user sync, blog notifications) when configured.
 
-## Tech stack
+## Architecture
+
+```text
+Browser (React / Vite)
+       │
+       ▼
+Express API (MongoDB, Clerk, Inngest)
+       │
+       └── HTTP ──► FastAPI ml-service (recommendations + category model)
+```
 
 | Layer | Technologies |
 |--------|----------------|
-| **Frontend** | React 19, Vite 7, React Router 7, Tailwind CSS 4, Axios, Clerk (`@clerk/react`), Quill, Motion |
-| **Backend** | Express 5, Mongoose (MongoDB), Clerk (`@clerk/express`), Multer, JWT, Inngest, Nodemailer |
-| **Integrations** | Clerk (auth), ImageKit (images), Google Gemini (optional AI), SMTP (optional mail) |
-| **Monorepo scripts** | Root `package.json` uses `concurrently` to run the frontend dev server and backend together |
+| **Frontend** | React 19, Vite 7, React Router 7, Tailwind CSS 4, Axios, Clerk, Quill, Motion |
+| **Backend** | Express 5, Mongoose (MongoDB), Clerk, Multer, JWT, Inngest, Nodemailer, ImageKit, Gemini |
+| **ML service** | Python, FastAPI, scikit-learn, TF-IDF, Logistic Regression |
+| **Monorepo** | Root `package.json` with `concurrently` to run frontend + backend together |
 
 ## Prerequisites
 
 - **Node.js** (LTS recommended) and **npm**
-- **MongoDB** reachable at the URI you set in `.env` (local or Atlas)
+- **MongoDB** — local or [MongoDB Atlas](https://www.mongodb.com/atlas)
+- **Python 3.12+** — only if you run or train the ML service locally
+- **Clerk** account — create a **new** Clerk application for Blogify-ML (do not reuse an old Blogify app)
 
-## Installation
+## Quick start
+
+### 1. Clone and install
 
 ```bash
 git clone https://github.com/pramodsinzh/Blogify.git
-cd Blogify
-npm install
-cd frontend && npm install
-cd ../backend && npm install
+cd Blogify-ML
+npm run setup
 ```
 
-The root `npm install` only installs shared tooling (for example `concurrently`). Install dependencies in `frontend` and `backend` as above.
+`npm run setup` installs root, frontend, and backend dependencies. You can also install manually:
 
-## Environment variables
+```bash
+npm install
+npm install --prefix frontend
+npm install --prefix backend
+```
 
-### Backend (`backend/.env`)
+### 2. Environment variables
 
-Copy the example file and adjust values:
+**Backend** — copy the example and fill in your values:
 
 ```bash
 cp backend/.env.example backend/.env
 ```
 
-`backend/.env.example` documents core settings: `PORT`, `MONGODB_URI`, admin credentials, `JWT_SECRET`, and `CONTACT_EMAIL`. For a full local setup you will also need:
+Key variables in `backend/.env`:
 
-- **Clerk**: Secret and publishable keys as required by [@clerk/express](https://clerk.com/docs/references/backend/overview) (typically `CLERK_SECRET_KEY` and related Clerk env vars from your Clerk dashboard).
-- **Optional**: `GEMINI_API_KEY`, ImageKit (`IMAGEKIT_PRIVATE_KEY`), SMTP variables for mail, and Inngest configuration if you use those features.
+| Variable | Purpose |
+|----------|---------|
+| `PORT` | API port (default `3001`) |
+| `MONGODB_URI` | MongoDB connection string (without db name) |
+| `MONGODB_DB_NAME` | Database name (default `blogify-ml`) |
+| `CLERK_SECRET_KEY` / `CLERK_PUBLISHABLE_KEY` | Clerk backend auth |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Admin identity and legacy JWT login |
+| `JWT_SECRET` | Signs legacy admin JWT tokens |
+| `ML_SERVICE_URL` | FastAPI base URL (e.g. `http://localhost:8000`) |
+| `GEMINI_API_KEY` | Optional — AI content generation |
+| `IMAGEKIT_*` | Optional — image uploads |
+| `SMTP_*` / `SENDER_EMAIL` | Optional — transactional email |
+| `INNGEST_*` | Optional — background jobs |
+| `FRONTEND_URL` | Used in emails and Inngest links |
 
-The API default port is **3001** if `PORT` is unset.
+**Frontend** — create `frontend/.env`:
 
-### Frontend (`frontend/.env`)
+```bash
+cp frontend/.env.example frontend/.env
+```
 
-Create `frontend/.env` with:
+| Variable | Purpose |
+|----------|---------|
+| `VITE_BASE_URL` | Backend API URL (e.g. `http://localhost:3001`) |
+| `VITE_CLERK_PUBLISHABLE_KEY` | Clerk publishable key for the React app |
 
-- `VITE_CLERK_PUBLISHABLE_KEY` — Clerk publishable key for the React app.
-- `VITE_BASE_URL` — Base URL of the backend API (for example `http://localhost:3001` during local development).
-
-Vite’s dev server defaults to **http://localhost:5173** unless you change it in `vite.config.js`.
-
-## Running the app
+### 3. Run the app
 
 From the **project root**:
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev:frontend` | Vite dev server (frontend only) |
-| `npm run server:backend` | Express API with nodemon (backend only) |
-| `npm run project` | Frontend + backend together |
+| `npm run project` | Frontend + backend together (recommended for local dev) |
+| `npm run dev:frontend` | Vite dev server only (`http://localhost:5173`) |
+| `npm run server:backend` | Express API with nodemon (`http://localhost:3001`) |
+| `npm run start:frontend` | Production build preview |
+| `npm run start:backend` | Run backend without nodemon |
 
-Production-style commands: `npm run start:frontend` and `npm run start:backend`.
+### 4. ML service (optional but recommended)
+
+Train the category model on your MongoDB blogs, then start the API:
+
+```bash
+cd ml-service
+python -m venv .venv
+
+# Windows
+.\.venv\Scripts\activate
+
+# macOS / Linux
+source .venv/bin/activate
+
+pip install -r requirements.txt
+python train_model.py
+```
+
+From the repo root you can also use:
+
+| Command | Description |
+|---------|-------------|
+| `npm run ml:train` | Train category model (Windows venv path) |
+| `npm run ml:serve` | Start FastAPI on port 8000 with reload |
+
+Or run directly:
+
+```bash
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+Set `ML_SERVICE_URL=http://localhost:8000` in `backend/.env`. Health check: `GET http://localhost:8000/health`.
+
+Full ML docs: [ml-service/README.md](ml-service/README.md).
 
 ## Project structure
 
 ```text
-Blogify/
-  frontend/     # Vite + React app (pages, components, admin UI)
-  backend/      # Express API, models, routes, Inngest functions
-  ml-service/   # Python FastAPI: recommendations + trained category model
-  package.json  # Root scripts and concurrently
-  README.md
+Blogify-ML/
+├── frontend/       # Vite + React app (public pages, admin UI)
+├── backend/        # Express API, models, routes, Inngest functions
+├── ml-service/     # Python FastAPI — recommendations + category classifier
+├── package.json    # Root scripts (concurrently, ML helpers)
+└── README.md
 ```
 
-### ML service (category prediction + recommendations)
+## API overview
 
-1. Install Python deps and train on your blog dataset:
-   ```bash
-   cd ml-service
-   python -m venv .venv
-   .\.venv\Scripts\activate
-   pip install -r requirements.txt
-   python train_model.py
-   ```
-2. Run the ML API (port 8000):
-   ```bash
-   python main.py
-   ```
-3. Local: `ML_SERVICE_URL=http://localhost:8000` in `backend/.env`.
-4. Production: deploy `ml-service` on [Render](https://render.com) and set `ML_SERVICE_URL` on **Vercel backend**. See [ml-service/DEPLOY_RENDER.md](ml-service/DEPLOY_RENDER.md).
+| Route | Description |
+|-------|-------------|
+| `GET /blog/all` | List published blogs |
+| `GET /blog/:id` | Single blog |
+| `GET /blog/:blogId/recommendations` | ML “You might also like” |
+| `POST /blog/predict-category` | AI category suggestion |
+| `POST /blog/add-user` | Create blog (Clerk auth) |
+| `GET /blog/my-blogs` | Author’s blogs (Clerk auth) |
+| `POST /blog/add-comment` | Add comment (Clerk auth) |
+| `POST /admin/login` | Legacy admin JWT login |
+| `GET /admin/is-admin` | Check if Clerk user is admin |
+| `POST /subscription` | Newsletter signup |
+| `POST /contact` | Contact form |
 
-Full details: [ml-service/README.md](ml-service/README.md).
+Admin routes under `/admin/*` (except `/login`) require auth via Clerk (email = `ADMIN_EMAIL`) or a valid legacy JWT.
+
+## Deployment
+
+Typical production layout:
+
+```text
+Browser → Vercel (React frontend)
+              ↓
+         Vercel (Express backend)  ──HTTP──►  Render (FastAPI ml-service)
+              ↓
+           MongoDB Atlas
+```
+
+| Component | Platform | Notes |
+|-----------|----------|-------|
+| Frontend | [Vercel](https://vercel.com) | `frontend/vercel.json` — SPA rewrites |
+| Backend | [Vercel](https://vercel.com) | `backend/vercel.json` — Node serverless |
+| ML service | [Render](https://render.com) | Python + scikit-learn; commit trained `.pkl` files |
+
+Set `ML_SERVICE_URL` on the **backend** Vercel project to your Render service URL. Step-by-step: [ml-service/DEPLOY_RENDER.md](ml-service/DEPLOY_RENDER.md).
 
 ## Contributing
 
