@@ -18,6 +18,7 @@ import SeeAllBlogs from './pages/SeeAllBlogs'
 import { SignIn } from '@clerk/react'
 import MyBlogs from './pages/MyBlogs' 
 import UserAddBlog from './pages/UserAddBlog'
+import NotFound, { AdminNotFound } from './pages/NotFound'
 
 const App = () => {
 
@@ -43,7 +44,10 @@ const App = () => {
           <Route path='listBlog' element={<ListBlog />} />
           <Route path='comments' element={<Comments />} />
           <Route path='subscribers' element={<Subscribers />} />
+          <Route path='*' element={<AdminNotFound />} />
         </Route>
+
+        <Route path='*' element={<NotFound />} />
       </Routes>
     </div>
   )
