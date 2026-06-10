@@ -1,6 +1,6 @@
 # Blogify ML Service
 
-Python service for **Blogify-ML**: blog recommendations and **AI category prediction** (trained classifier).
+Python service for **Blogify-Smart Blogging Platform**: blog recommendations and **AI category prediction** (trained classifier).
 
 ## Features
 

@@ -1,4 +1,4 @@
-# Blogify-ML
+# Blogify-Smart Blogging Platform
 
 A full-stack blogging platform with **machine learning** built in: public reading, Clerk-authenticated authors, an admin dashboard, comments, newsletter signup, and contact. The stack is **React** + **Vite** on the frontend, **Express** + **MongoDB** on the backend, and a **Python FastAPI** service for recommendations and trained category prediction.
 
@@ -36,7 +36,7 @@ Express API (MongoDB, Clerk, Inngest)
 - **Node.js** (LTS recommended) and **npm**
 - **MongoDB** — local or [MongoDB Atlas](https://www.mongodb.com/atlas)
 - **Python 3.12+** — only if you run or train the ML service locally
-- **Clerk** account — create a **new** Clerk application for Blogify-ML (do not reuse an old Blogify app)
+- **Clerk** account — create a **new** Clerk application for Blogify-Smart Blogging Platform (do not reuse an old Blogify app)
 
 ## Quick start
 
@@ -44,7 +44,7 @@ Express API (MongoDB, Clerk, Inngest)
 
 ```bash
 git clone https://github.com/pramodsinzh/Blogify.git
-cd Blogify-ML
+cd Blogify-Smart-Blogging-Platform
 npm run setup
 ```
 
@@ -70,7 +70,7 @@ Key variables in `backend/.env`:
 |----------|---------|
 | `PORT` | API port (default `3001`) |
 | `MONGODB_URI` | MongoDB connection string (without db name) |
-| `MONGODB_DB_NAME` | Database name (default `blogify-ml`) |
+| `MONGODB_DB_NAME` | Database name (default `blogify-smart-blogging-platform`) |
 | `CLERK_SECRET_KEY` / `CLERK_PUBLISHABLE_KEY` | Clerk backend auth |
 | `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Admin identity and legacy JWT login |
 | `JWT_SECRET` | Signs legacy admin JWT tokens |
@@ -142,7 +142,7 @@ Full ML docs: [ml-service/README.md](ml-service/README.md).
 ## Project structure
 
 ```text
-Blogify-ML/
+Blogify-Smart-Blogging-Platform/
 ├── frontend/       # Vite + React app (public pages, admin UI)
 ├── backend/        # Express API, models, routes, Inngest functions
 ├── ml-service/     # Python FastAPI — recommendations + category classifier

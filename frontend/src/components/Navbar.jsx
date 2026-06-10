@@ -109,7 +109,7 @@ const Navbar = () => {
                 <Link to="/" className="shrink-0" onClick={() => setMobileOpen(false)}>
                     <img
                         src={assets.logo}
-                        alt="Blogify-ML"
+                        alt="Blogify-Smart Blogging Platform"
                         className="h-8 w-auto sm:h-9 cursor-pointer"
                     />
                 </Link>

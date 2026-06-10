@@ -1,5 +1,5 @@
 """
-Blogify ML service (FastAPI)
+Blogify-Smart Blogging Platform ML service (FastAPI)
 
 Endpoints:
   GET  /health
