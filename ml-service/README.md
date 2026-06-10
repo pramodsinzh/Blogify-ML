@@ -118,6 +118,6 @@ Or from repo root: `npm run ml:serve`
 
 `GET http://localhost:8000/health` → includes `"categoryModelTrained": true/false`.
 
-## Recommendations (unchanged)
+## Recommendations
 
-Use `GET /recommend/example` for Postman examples.
+`POST /recommend` with a JSON body: `{ "blogs": [...], "current_blog_id": "...", "limit": 4 }`.

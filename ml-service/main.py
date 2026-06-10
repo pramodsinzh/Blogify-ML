@@ -7,7 +7,6 @@ Endpoints:
   POST /predict-category       — trained Logistic Regression category classifier
 """
 
-import json
 from typing import Any
 
 from fastapi import FastAPI, HTTPException
@@ -25,26 +24,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-SAMPLE_BODY = {
-    "current_blog_id": "6a193070351546eda7b7133a",
-    "limit": 4,
-    "blogs": [
-        {
-            "_id": "6a193070351546eda7b7133a",
-            "title": "How AI is Changing Content Creation in 2026",
-            "category": "Technology",
-            "description": "<p>AI agents and content workflows in 2026.</p>",
-        },
-        {
-            "_id": "698b02c24c965a546bb6708f",
-            "title": "Understanding PowerShell Execution Policies",
-            "category": "Technology",
-            "description": "<p>PowerShell execution policy and running scripts on Windows.</p>",
-        },
-    ],
-}
-
 
 class RecommendRequest(BaseModel):
     blogs: list[dict[str, Any]] = Field(default_factory=list)
@@ -80,12 +59,6 @@ def health():
         "recommendations": True,
         "categoryModelTrained": artifacts_exist(),
     }
-
-
-@app.get("/recommend/example")
-def recommend_example():
-    return SAMPLE_BODY
-
 
 @app.post("/recommend", response_model=RecommendResponse)
 def recommend(body: RecommendRequest):
