@@ -6,8 +6,10 @@ import Subscription from '../models/subscription.model.js';
  * @param {Object} blogData - Blog data object containing blog information
  * @param {string} frontendURL - Frontend URL for blog links
  */
-export const notifySubscribersAboutNewBlog = async (blogData, frontendURL = 'http://localhost:5173') => {
+export const notifySubscribersAboutNewBlog = async (blogData, frontendURL) => {
     try {
+        const effectiveFrontendURL = (frontendURL || process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
+
         // Get all active subscribers
         const subscribers = await Subscription.find({ isActive: true });
         
@@ -16,7 +18,7 @@ export const notifySubscribersAboutNewBlog = async (blogData, frontendURL = 'htt
             return { success: true, notified: 0 };
         }
 
-        const blogURL = `${frontendURL}/blog/${blogData.id}`;
+        const blogURL = `${effectiveFrontendURL}/blog/${blogData.id}`;
         
         // Create HTML email template
         const emailHTML = `

@@ -66,7 +66,7 @@ const sendNewBlogNotifications = inngest.createFunction(
     async ({ event, step }) => {
         const { blogId, blogTitle, blogSubTitle, blogCategory, blogImage } = event.data;
         const eventType = "app/blog.published";
-        const frontendURL = process.env.FRONTEND_URL || "http://localhost:5173";
+        const frontendURL = (process.env.FRONTEND_URL || "http://localhost:5173").replace(/\/$/, "");
         const blogURL = `${frontendURL}/blog/${blogId}`;
 
         const subscribers = await step.run("load-active-subscribers", async () => {
